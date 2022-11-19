@@ -16,31 +16,32 @@ import java.util.stream.Stream;
 
 public class App2 {
     public static void main(String[] args) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
         List<Violation> violations = new ArrayList<>();
-        List<Violation> violations1;
-        List<String> jsonFileNames;
-        //Шукаємо всі json файли в поточному каталозі
-        try (Stream<Path> stream = Files.walk(Paths.get("."), 1)) {
-            jsonFileNames = stream
+        List<Violation> temp;
+        List<String> jsonFileNames = getFileNames();
+
+        //Читаємо усі файли і десеріалізуємо їх в коллекцію об'єктів
+        for (String file : jsonFileNames
+        ) {
+            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                temp = objectMapper.readValue(br, new TypeReference<List<Violation>>() {
+                });
+                violations.addAll(temp);
+            }
+        }
+        System.out.println(violations.size());
+    }
+
+    //Шукаємо всі json файли в поточному каталозі
+    public static List<String> getFileNames() throws IOException {
+        try (Stream<Path> walk = Files.walk(Paths.get("."), 1)) {
+            return walk
                     .filter(p -> !Files.isDirectory(p))
                     .map(Path::getFileName)
                     .map(p -> p.toString().toLowerCase())
                     .filter(f -> f.endsWith("json"))
                     .collect(Collectors.toList());
         }
-        System.out.println(jsonFileNames);
-        //Читаємо усі файли і десеріалізуємо їх в коллекцію об'єктів
-        ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
-        for (String file : jsonFileNames
-        ) {
-            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-                violations1 = objectMapper.readValue(br, new TypeReference<List<Violation>>() {
-                });
-                violations.addAll(violations1);
-            }
-
-        }
-        System.out.println(violations);
-        System.out.println(violations.size());
     }
 }
