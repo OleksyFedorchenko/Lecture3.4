@@ -3,21 +3,22 @@ package org.example;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class App2 {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, JAXBException {
         ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
         List<Violation> violations = new ArrayList<>();
         List<Violation> temp;
@@ -34,16 +35,13 @@ public class App2 {
             }
         }
 
-        System.out.println(violations.size());
-
         //Робимо мапу з типами без дублікатів
         for (Violation v : violations) {
             result.put(v.getType(), 0.0);
         }
-        System.out.println(result);
 
         //Підраховуємо суму для кожного типу порушень,
-        // як результат отримуємо мапу з результатами завдання (Тип порушення: Сума штрафу).
+        // як результат отримуємо мапу з результатами завдання (Тип порушення: Сума штрафу) не сортовану.
         for (String s : result.keySet()) {
             double sum = 0.0;
             for (Violation v : violations) {
@@ -53,7 +51,32 @@ public class App2 {
                 result.put(s, sum);
             }
         }
-        System.out.println(result);
+
+        //Сортуємо результати в порядку спадання суми штрафів.
+        LinkedHashMap<String, Double> sortedResultByAmountReverseOrder = new LinkedHashMap<>();
+        ArrayList<Double> list = new ArrayList<>();
+        for (Map.Entry<String, Double> entry : result.entrySet()) {
+            list.add(entry.getValue());
+        }
+        list.sort(Collections.reverseOrder());
+        for (Double dbl : list) {
+            for (Map.Entry<String, Double> entry : result.entrySet()) {
+                if (entry.getValue().equals(dbl)) {
+                    sortedResultByAmountReverseOrder.put(entry.getKey(), dbl);
+                }
+            }
+        }
+
+        //Пишемо в XML файл
+        ViolationsMap violationsMap = new ViolationsMap();
+        violationsMap.setViolate(sortedResultByAmountReverseOrder);
+        JAXBContext jaxbContext = JAXBContext.newInstance(ViolationsMap.class);
+        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        jaxbMarshaller.marshal(violationsMap, System.out);
+        jaxbMarshaller.marshal(violationsMap, new File("resultjson.xml"));
+
+
     }
 
     //Шукаємо всі json файли в поточному каталозі

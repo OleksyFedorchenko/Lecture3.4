@@ -24,6 +24,4 @@ public class Violation {
     String type;
     @JsonSetter("fine_amount")
     Double fineAmount;
-
-
 }
