@@ -73,6 +73,24 @@ public class App2 {
         }
     }
 
+    //Метод сортування результатів в порядку спадання суми штрафів.
+    public static LinkedHashMap<String, Double> sortingResultMap(Map<String, Double> result) {
+        LinkedHashMap<String, Double> sortedResultByAmountReverseOrder = new LinkedHashMap<>();
+        ArrayList<Double> list = new ArrayList<>();
+        for (Map.Entry<String, Double> entry : result.entrySet()) {
+            list.add(entry.getValue());
+        }
+        list.sort(Collections.reverseOrder());
+        for (Double dbl : list) {
+            for (Map.Entry<String, Double> entry : result.entrySet()) {
+                if (entry.getValue().equals(dbl)) {
+                    sortedResultByAmountReverseOrder.put(entry.getKey(), dbl);
+                }
+            }
+        }
+        return sortedResultByAmountReverseOrder;
+    }
+
     //Варіант 1. Пишемо в XML файл за допомогою парсера JAXB
     public static void writeResultToXmlByJAXB(Map<String, Double> map) throws JAXBException {
         ViolationsMap violationsMap = new ViolationsMap();
@@ -96,23 +114,5 @@ public class App2 {
             }
             bw.write("</violates>");
         }
-    }
-
-    //Метод сортування результатів в порядку спадання суми штрафів.
-    public static LinkedHashMap<String, Double> sortingResultMap(Map<String, Double> result) {
-        LinkedHashMap<String, Double> sortedResultByAmountReverseOrder = new LinkedHashMap<>();
-        ArrayList<Double> list = new ArrayList<>();
-        for (Map.Entry<String, Double> entry : result.entrySet()) {
-            list.add(entry.getValue());
-        }
-        list.sort(Collections.reverseOrder());
-        for (Double dbl : list) {
-            for (Map.Entry<String, Double> entry : result.entrySet()) {
-                if (entry.getValue().equals(dbl)) {
-                    sortedResultByAmountReverseOrder.put(entry.getKey(), dbl);
-                }
-            }
-        }
-        return sortedResultByAmountReverseOrder;
     }
 }
