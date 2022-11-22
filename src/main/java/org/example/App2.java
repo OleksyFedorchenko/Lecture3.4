@@ -75,8 +75,6 @@ public class App2 {
         jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         jaxbMarshaller.marshal(violationsMap, System.out);
         jaxbMarshaller.marshal(violationsMap, new File("resultjson.xml"));
-
-
     }
 
     //Шукаємо всі json файли в поточному каталозі
