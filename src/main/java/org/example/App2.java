@@ -81,12 +81,12 @@ public class App2 {
         Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
         jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         jaxbMarshaller.marshal(violationsMap, System.out);
-        jaxbMarshaller.marshal(violationsMap, new File("result_json.xml"));
+        jaxbMarshaller.marshal(violationsMap, new File("parsed_json.xml"));
     }
 
     //Варіант 2. Пишемо в XML файл построково. Варіант 2.
     public static void writeResultToXmlByWriteStringLine(Map<String, Double> map) throws IOException {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("result_json2.xml", true))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("parsed_json2.xml", true))) {
 //            bw.write(String.valueOf(checkTag));
             bw.write("<violates>\n");
             for (Map.Entry<String, Double> mapElement : map.entrySet()) {
