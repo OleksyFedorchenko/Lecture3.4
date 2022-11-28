@@ -50,14 +50,8 @@ public class App2 {
             }
         }
 
-        //Сортуємо результати в порядку спадання суми штрафів.
-        Map<String, Double> sortedResultByAmountReverseOrder = sortingResultMap(result);
-
-        //Пишемо в XML файл за допомогою парсера JAXB. Варіант 1.
-        writeResultToXmlByJAXB(sortedResultByAmountReverseOrder);
-
-        //Пишемо в XML файл построково. Варіант 2.
-        writeResultToXmlByWriteStringLine(sortedResultByAmountReverseOrder);
+        //Пишемо в XML файл за допомогою парсера JAXB.
+        writeResultToXmlByJAXB(sortingResultMap(result));
 
     }
 
@@ -75,23 +69,13 @@ public class App2 {
 
     //Метод сортування результатів в порядку спадання суми штрафів.
     public static LinkedHashMap<String, Double> sortingResultMap(Map<String, Double> result) {
-        LinkedHashMap<String, Double> sortedResultByAmountReverseOrder = new LinkedHashMap<>();
-        ArrayList<Double> list = new ArrayList<>();
-        for (Map.Entry<String, Double> entry : result.entrySet()) {
-            list.add(entry.getValue());
-        }
-        list.sort(Collections.reverseOrder());
-        for (Double dbl : list) {
-            for (Map.Entry<String, Double> entry : result.entrySet()) {
-                if (entry.getValue().equals(dbl)) {
-                    sortedResultByAmountReverseOrder.put(entry.getKey(), dbl);
-                }
-            }
-        }
-        return sortedResultByAmountReverseOrder;
+        return result.entrySet().stream()
+                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (e1, e2) -> e1, LinkedHashMap::new));
     }
 
-    //Варіант 1. Пишемо в XML файл за допомогою парсера JAXB
+    //Пишемо в XML файл за допомогою парсера JAXB
     public static void writeResultToXmlByJAXB(Map<String, Double> map) throws JAXBException {
         ViolationsMap violationsMap = new ViolationsMap();
         violationsMap.setViolate(map);
@@ -100,19 +84,5 @@ public class App2 {
         jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         jaxbMarshaller.marshal(violationsMap, System.out);
         jaxbMarshaller.marshal(violationsMap, new File("parsed_json.xml"));
-    }
-
-    //Варіант 2. Пишемо в XML файл построково. Варіант 2.
-    public static void writeResultToXmlByWriteStringLine(Map<String, Double> map) throws IOException {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("parsed_json2.xml", true))) {
-//            bw.write(String.valueOf(checkTag));
-            bw.write("<violates>\n");
-            for (Map.Entry<String, Double> mapElement : map.entrySet()) {
-                bw.write("\t<violate>\n");
-                bw.write("\t\t<name>" + mapElement.getKey() + "</name>\n\t\t<value>" + mapElement.getValue() + "</value\n>");
-                bw.write("\t</violate>\n");
-            }
-            bw.write("</violates>");
-        }
     }
 }
