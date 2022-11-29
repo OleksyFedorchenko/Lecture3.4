@@ -19,9 +19,7 @@ public class App2 {
         ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
         List<Violation> violations = new ArrayList<>();
         List<Violation> temp;
-        Map<String, Double> result = new HashMap<>();
         List<String> jsonFileNames = getFileNames();
-
         //Читаємо усі файли і десеріалізуємо їх в коллекцію об'єктів
         for (String file : jsonFileNames) {
             try (BufferedReader br = new BufferedReader(new FileReader(file))) {
@@ -30,24 +28,14 @@ public class App2 {
                 violations.addAll(temp);
             }
         }
-
-        //Робимо мапу з типами без дублікатів
+        //Робимо мапу з типами і сумою штрафів
+        Map<String, Double> result = new HashMap<>();
         for (Violation v : violations) {
-            result.put(v.getType(), 0.0);
+            if (result.containsKey(v.getType())){
+                double sum = result.get(v.getType());
+                result.put(v.getType(),sum+v.getFineAmount());
+            }else result.put(v.getType(), v.getFineAmount());
         }
-
-        //Підраховуємо суму для кожного типу порушень,
-        // як результат отримуємо мапу з результатами завдання (Тип порушення: Сума штрафу) не сортовану.
-        for (String s : result.keySet()) {
-            double sum = 0.0;
-            for (Violation v : violations) {
-                if (s.equals(v.type)) {
-                    sum += v.fineAmount;
-                }
-                result.put(s, sum);
-            }
-        }
-
         //Пишемо в XML файл за допомогою парсера JAXB.
         writeResultToXmlByJAXB(sortingResultMap(result));
 
