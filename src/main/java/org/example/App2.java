@@ -22,10 +22,8 @@ public class App2 {
         Map<String, Double> result = new HashMap<>();
         List<String> jsonFileNames = getFileNames();
 
-
         //Читаємо усі файли і десеріалізуємо їх в коллекцію об'єктів
-        for (String file : jsonFileNames
-        ) {
+        for (String file : jsonFileNames) {
             try (BufferedReader br = new BufferedReader(new FileReader(file))) {
                 temp = objectMapper.readValue(br, new TypeReference<List<Violation>>() {
                 });
