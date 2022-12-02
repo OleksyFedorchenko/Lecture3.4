@@ -18,24 +18,25 @@ public class App2 {
     public static void main(String[] args) throws IOException, JAXBException {
         ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
         List<Violation> violations = new ArrayList<>();
-        List<Violation> temp;
         List<String> jsonFileNames = getFileNames();
+
         //Читаємо усі файли і десеріалізуємо їх в коллекцію об'єктів
         for (String file : jsonFileNames) {
             try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-                temp = objectMapper.readValue(br, new TypeReference<List<Violation>>() {
-                });
-                violations.addAll(temp);
+                violations.addAll(objectMapper.readValue(br, new TypeReference<List<Violation>>() {
+                }));
             }
         }
+
         //Робимо мапу з типами і сумою штрафів
         Map<String, Double> result = new HashMap<>();
         for (Violation v : violations) {
-            if (result.containsKey(v.getType())){
+            if (result.containsKey(v.getType())) {
                 double sum = result.get(v.getType());
-                result.put(v.getType(),sum+v.getFineAmount());
-            }else result.put(v.getType(), v.getFineAmount());
+                result.put(v.getType(), sum + v.getFineAmount());
+            } else result.put(v.getType(), v.getFineAmount());
         }
+
         //Пишемо в XML файл за допомогою парсера JAXB.
         writeResultToXmlByJAXB(sortingResultMap(result));
 
